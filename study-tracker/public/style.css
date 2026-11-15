@@ -174,23 +174,6 @@ body {
   transform: scale(0.99);
 }
 
-.auth-footer-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 320px;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 15px;
-}
-
-.auth-switch-link {
-  color: var(--accent-terracotta);
-  cursor: pointer;
-  text-decoration: underline;
-}
-
 /* ---------- Main App Dashboard Layout ---------- */
 .app-container {
   max-width: 1000px;

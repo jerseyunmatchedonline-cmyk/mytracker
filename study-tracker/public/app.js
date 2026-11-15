@@ -17,27 +17,26 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // Authentication UI toggling
 const loginForm = $('loginForm');
 const registerForm = $('registerForm');
-const toggleAuthBtn = $('toggleAuthBtn');
 const authHeaderTitle = $('authHeaderTitle');
 const authHeaderSub = $('authHeaderSub');
 
-function toggleAuthMode() {
-  const isLogin = !loginForm.classList.contains('hidden');
-  if (isLogin) {
+function showMode(isLogin) {
+  if (!isLogin) {
     loginForm.classList.add('hidden');
     registerForm.classList.remove('hidden');
     authHeaderTitle.textContent = 'Join us.';
     authHeaderSub.textContent = 'Create your account to start tracking your study sessions and diet.';
-    toggleAuthBtn.textContent = 'Login';
   } else {
     registerForm.classList.add('hidden');
     loginForm.classList.remove('hidden');
     authHeaderTitle.textContent = 'Welcome.';
     authHeaderSub.textContent = 'Your mindful space for study focus and daily nutrition tracking.';
-    toggleAuthBtn.textContent = 'Register';
   }
 }
-toggleAuthBtn.addEventListener('click', toggleAuthMode);
+
+// Top nav toggles
+$('navShowLogin').addEventListener('click', () => showMode(true));
+$('navShowRegister').addEventListener('click', () => showMode(false));
 
 // App entry point & Auth state
 async function checkAuth() {
