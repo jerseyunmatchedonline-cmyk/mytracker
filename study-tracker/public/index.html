@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study &amp; Diet Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ================= AUTH CONTAINER ================= -->
+  <div id="authContainer" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-nav">
+        <span>EST. 2026</span>
+        <div class="auth-nav-links">
+          <span class="auth-nav-link" id="navShowLogin">SIGN IN</span>
+          <span class="auth-nav-link" id="navShowRegister">REGISTER</span>
+        </div>
+      </div>
+
+      <h1 class="auth-title" id="authHeaderTitle">Welcome.</h1>
+      <p class="auth-subtitle" id="authHeaderSub">
+        Your mindful space for study focus and daily nutrition tracking. Sign in to access your personal workspace.
+      </p>
+
+      <!-- SVG Organic Shapes Line (matching image_16 aesthetic) -->
+      <div class="shapes-banner">
+        <svg class="shapes-svg" viewBox="0 0 700 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Organic Leaf/Twig element -->
+          <path d="M40 55 C 50 20, 90 25, 110 50" stroke="#8a8763" stroke-width="2" stroke-linecap="round"/>
+          <path d="M50 45 C 45 40, 42 32, 48 30 C 52 32, 54 40, 50 45 Z" fill="#8a8763" opacity="0.7"/>
+          <path d="M70 38 C 65 32, 63 24, 70 22 C 74 24, 76 32, 70 38 Z" fill="#8a8763" opacity="0.7"/>
+
+          <!-- Circle Ring (Terracotta) -->
+          <ellipse cx="180" cy="42" rx="32" ry="24" stroke="#d9a384" stroke-width="8" stroke-dasharray="100 10"/>
+
+          <!-- Semi-circle Blob (Clay) -->
+          <path d="M230 54 A 28 28 0 0 1 286 54 Z" fill="#c47e65" opacity="0.85"/>
+
+          <!-- Sketch lines -->
+          <path d="M295 58 L370 22 M305 64 L380 28 M320 68 L390 35" stroke="#948467" stroke-width="1.8" stroke-linecap="round"/>
+
+          <!-- Oval Ring (Sage/Olive) -->
+          <ellipse cx="435" cy="42" rx="30" ry="20" stroke="#a3a07a" stroke-width="7" transform="rotate(-10 435 42)"/>
+
+          <!-- Soft Wedge (Pastel Blush) -->
+          <path d="M480 32 Q 520 20 540 56 L 480 56 Z" fill="#edd6c4"/>
+
+          <!-- Dot Matrix Cluster -->
+          <circle cx="565" cy="42" r="2.5" fill="#7a8060"/>
+          <circle cx="572" cy="35" r="2" fill="#7a8060"/>
+          <circle cx="576" cy="46" r="3" fill="#7a8060"/>
+          <circle cx="583" cy="38" r="2" fill="#7a8060"/>
+          <circle cx="588" cy="47" r="2.5" fill="#7a8060"/>
+          <circle cx="594" cy="40" r="1.5" fill="#7a8060"/>
+
+          <!-- Large Textured Oval (Dusty Pink / Beige) -->
+          <ellipse cx="640" cy="42" rx="38" ry="28" fill="#e0c8b6" opacity="0.9"/>
+
+          <!-- Circular Line Sketch -->
+          <circle cx="700" cy="42" r="26" stroke="#aa9384" stroke-width="1.5" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <input type="text" id="loginUsername" class="input-pill" placeholder="USERNAME" required />
+        <input type="password" id="loginPassword" class="input-pill" placeholder="PASSWORD" required />
+        <button type="submit" class="btn-pill">LOGIN</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden">
+        <input type="text" id="regDisplayName" class="input-pill" placeholder="YOUR NAME (E.G. SANKET)" required />
+        <input type="text" id="regUsername" class="input-pill" placeholder="USERNAME" required />
+        <input type="password" id="regPassword" class="input-pill" placeholder="PASSWORD" required />
+        <button type="submit" class="btn-pill">CREATE ACCOUNT</button>
+      </form>
+
+      <div class="auth-footer-options">
+        <span id="authToggleText">Need an account? <span class="auth-switch-link" id="toggleAuthBtn">Register</span></span>
+        <span class="auth-switch-link">Local SQLite Session</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN APP DASHBOARD ================= -->
+  <div id="appContainer" class="app-container hidden">
+
+    <!-- Top Bar -->
+    <header class="dashboard-header">
+      <div class="dashboard-brand">
+        <h1>Tracker.</h1>
+      </div>
+      <div class="dashboard-user-bar">
+        <span class="user-greeting" id="userGreeting">Welcome, Sanket</span>
+        <button id="logoutBtn" class="btn-sm-ghost">SIGN OUT</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="tab-container">
+      <button class="tab-btn active" data-tab="study">STUDY &amp; POMODORO</button>
+      <button class="tab-btn" data-tab="diet">DIET &amp; NUTRITION</button>
+    </nav>
+
+    <!-- ================= STUDY MODULE ================= -->
+    <main id="tab-study" class="module-section active">
+
+      <!-- Pomodoro Card -->
+      <div class="card-panel">
+        <h2 class="panel-title">Pomodoro Timer</h2>
+
+        <div class="pomodoro-container">
+          <div class="timer-circle-wrapper">
+            <svg class="timer-svg" viewBox="0 0 180 180">
+              <circle class="timer-bg-circle" cx="90" cy="90" r="84" />
+              <circle id="timerProgressRing" class="timer-fg-circle" cx="90" cy="90" r="84" />
+            </svg>
+            <div class="timer-text-content">
+              <span class="timer-status-label" id="timerStatusLabel">FOCUS WORK</span>
+              <div class="timer-digits" id="timerDigits">25:00</div>
+              <span class="timer-cycle-label" id="timerCycleLabel">Cycle 1 of 4</span>
+            </div>
+          </div>
+
+          <div class="timer-btn-group">
+            <button id="timerStartBtn" class="btn-soft btn-soft-primary">Start</button>
+            <button id="timerPauseBtn" class="btn-soft">Pause</button>
+            <button id="timerResetBtn" class="btn-soft">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subjects Card -->
+      <div class="card-panel">
+        <h2 class="panel-title">Study Subjects</h2>
+        <div class="form-row">
+          <input type="text" id="newSubjectInput" class="input-soft" placeholder="New subject name..." style="flex: 1;" />
+          <input type="color" id="newSubjectColorInput" value="#c29b7d" style="width: 44px; height: 38px; padding: 2px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer;" />
+          <button id="addSubjectBtn" class="btn-soft btn-soft-primary">Add Subject</button>
+        </div>
+        <div class="subject-chips" id="subjectChipsContainer"></div>
+      </div>
+
+      <!-- Log Session Manually & History -->
+      <div class="card-panel">
+        <h2 class="panel-title">Logged Study Sessions</h2>
+        <div class="form-row" style="margin-bottom: 20px;">
+          <select id="logSubjectSelect" class="input-soft" style="flex: 1;"></select>
+          <input type="number" id="logMinutesInput" class="input-soft" placeholder="Minutes" style="width: 100px;" min="1" />
+          <button id="manualLogBtn" class="btn-soft">Log Session</button>
+        </div>
+        <ul class="history-list" id="studyHistoryList"></ul>
+      </div>
+
+    </main>
+
+    <!-- ================= DIET MODULE ================= -->
+    <main id="tab-diet" class="module-section">
+
+      <!-- Today Macros Card -->
+      <div class="card-panel">
+        <h2 class="panel-title">Daily Nutrition Summary</h2>
+        <div class="macros-grid">
+          <div class="macro-box">
+            <div class="macro-num" id="macroCal">0</div>
+            <div class="macro-lbl">CALORIES (KCAL)</div>
+          </div>
+          <div class="macro-box">
+            <div class="macro-num" id="macroProtein">0g</div>
+            <div class="macro-lbl">PROTEIN</div>
+          </div>
+          <div class="macro-box">
+            <div class="macro-num" id="macroCarbs">0g</div>
+            <div class="macro-lbl">CARBS</div>
+          </div>
+          <div class="macro-box">
+            <div class="macro-num" id="macroFat">0g</div>
+            <div class="macro-lbl">FAT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add / Lookup Food Card -->
+      <div class="card-panel">
+        <h2 class="panel-title">Log Food &amp; Lookup</h2>
+        <div class="form-row">
+          <input type="text" id="foodNameInput" class="input-soft" placeholder="Food name (e.g. Avocado Toast)" style="flex: 2;" />
+          <input type="number" id="foodCalInput" class="input-soft" placeholder="Calories" style="flex: 1;" />
+          <button id="addFoodBtn" class="btn-soft btn-soft-primary">Add Food</button>
+        </div>
+
+        <div class="form-row" style="margin-top: 15px;">
+          <input type="text" id="foodSearchInput" class="input-soft" placeholder="Search Open Food Facts database..." style="flex: 1;" />
+          <button id="searchFoodBtn" class="btn-soft">Fetch Info</button>
+        </div>
+
+        <div id="foodSearchResult" style="margin-top: 15px; display: none; background: var(--bg-input); padding: 15px; border-radius: 12px;"></div>
+      </div>
+
+      <!-- Food Logs List -->
+      <div class="card-panel">
+        <h2 class="panel-title">Today's Meals</h2>
+        <ul class="history-list" id="foodHistoryList"></ul>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

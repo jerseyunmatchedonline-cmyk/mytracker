@@ -1,0 +1,19 @@
+{
+  "name": "study-tracker",
+  "version": "1.0.0",
+  "description": "A local dashboard combining a Study Tracker & Pomodoro timer with a Diet & Calorie Tracker, backed by SQLite.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.19.2",
+    "express-session": "^1.19.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
