@@ -9,6 +9,14 @@ const { lookupFood } = require('./food-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+// Forward rejected promises from async handlers to Express error handling.
+for (const m of ['get', 'post', 'put', 'delete']) {
+  const orig = app[m].bind(app);
+  app[m] = (p, ...hs) => orig(p, ...hs.map((h) => (req, res, next) =>
+    Promise.resolve(h(req, res, next)).catch(next)));
+}
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,13 +40,13 @@ function requireAuth(req, res, next) {
 
 // ---------- Auth API Routes ----------
 
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   const { username, password, display_name } = req.body || {};
   if (!username || !password || String(username).trim().length < 2 || String(password).length < 4) {
     return res.status(400).json({ error: 'Username (min 2 chars) and Password (min 4 chars) are required.' });
   }
   try {
-    const user = db.registerUser(username, password, display_name || username);
+    const user = await db.registerUser(username, password, display_name || username);
     req.session.userId = user.id;
     res.json({ ok: true, user });
   } catch (e) {
@@ -46,12 +54,12 @@ app.post('/api/auth/register', (req, res) => {
   }
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
-  const user = db.verifyUser(username, password);
+  const user = await db.verifyUser(username, password);
   if (!user) {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
@@ -59,72 +67,72 @@ app.post('/api/auth/login', (req, res) => {
   res.json({ ok: true, user });
 });
 
-app.post('/api/auth/logout', (req, res) => {
+app.post('/api/auth/logout', async (req, res) => {
   req.session.destroy(() => {
     res.json({ ok: true });
   });
 });
 
-app.get('/api/auth/me', (req, res) => {
+app.get('/api/auth/me', async (req, res) => {
   if (!req.session || !req.session.userId) {
     return res.json({ user: null });
   }
-  const user = db.getUserById(req.session.userId);
+  const user = await db.getUserById(req.session.userId);
   res.json({ user: user || null });
 });
 
 // ---------- Protected API Routes (Per-User Data) ----------
 
-app.get('/api/subjects', requireAuth, (req, res) => {
-  res.json(db.getSubjects(req.session.userId));
+app.get('/api/subjects', requireAuth, async (req, res) => {
+  res.json(await db.getSubjects(req.session.userId));
 });
 
-app.post('/api/subjects', requireAuth, (req, res) => {
+app.post('/api/subjects', requireAuth, async (req, res) => {
   const { name, color } = req.body || {};
   if (!name || !String(name).trim()) {
     return res.status(400).json({ error: 'Subject name is required.' });
   }
   try {
-    const result = db.addSubject(req.session.userId, String(name).trim(), color || '#b87d61');
+    const result = await db.addSubject(req.session.userId, String(name).trim(), color || '#b87d61');
     res.json({ id: result.lastInsertRowid });
   } catch (e) {
-    if (String(e).includes('UNIQUE')) {
+    if (String(e).includes('UNIQUE') || e.code === '23505') {
       return res.status(409).json({ error: 'A subject with that name already exists.' });
     }
     throw e;
   }
 });
 
-app.delete('/api/subjects/:id', requireAuth, (req, res) => {
+app.delete('/api/subjects/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isFinite(id)) return res.status(400).json({ error: 'Invalid id.' });
-  const result = db.deleteSubject(req.session.userId, id);
+  const result = await db.deleteSubject(req.session.userId, id);
   if (result.changes === 0) return res.status(404).json({ error: 'Subject not found.' });
   res.json({ ok: true });
 });
 
-app.get('/api/study-sessions', requireAuth, (req, res) => {
-  res.json(db.getStudySessions(req.session.userId, Number(req.query.limit) || 100));
+app.get('/api/study-sessions', requireAuth, async (req, res) => {
+  res.json(await db.getStudySessions(req.session.userId, Number(req.query.limit) || 100));
 });
 
-app.post('/api/study-sessions', requireAuth, (req, res) => {
+app.post('/api/study-sessions', requireAuth, async (req, res) => {
   const { subject_id, duration_minutes, notes } = req.body || {};
   if (!subject_id || !duration_minutes || Number(duration_minutes) <= 0) {
     return res.status(400).json({ error: 'Valid subject and duration are required.' });
   }
-  if (!db.getSubject(req.session.userId, Number(subject_id))) {
+  if (!(await db.getSubject(req.session.userId, Number(subject_id)))) {
     return res.status(404).json({ error: 'Subject not found.' });
   }
-  const result = db.addStudySession(req.session.userId, Number(subject_id), Number(duration_minutes), notes);
+  const result = await db.addStudySession(req.session.userId, Number(subject_id), Number(duration_minutes), notes);
   res.json({ id: result.lastInsertRowid });
 });
 
-app.get('/api/study-total', requireAuth, (req, res) => {
-  res.json({ total_minutes: db.getStudyTotalMinutes(req.session.userId) });
+app.get('/api/study-total', requireAuth, async (req, res) => {
+  res.json({ total_minutes: await db.getStudyTotalMinutes(req.session.userId) });
 });
 
-app.get('/api/food-logs', requireAuth, (req, res) => {
-  res.json(db.getFoodLogs(req.session.userId, Number(req.query.limit) || 100));
+app.get('/api/food-logs', requireAuth, async (req, res) => {
+  res.json(await db.getFoodLogs(req.session.userId, Number(req.query.limit) || 100));
 });
 
 app.post('/api/food-logs', requireAuth, async (req, res) => {
@@ -132,7 +140,7 @@ app.post('/api/food-logs', requireAuth, async (req, res) => {
   if (!food_name || !String(food_name).trim()) {
     return res.status(400).json({ error: 'Food name is required.' });
   }
-  const result = db.addFoodLog(
+  const result = await db.addFoodLog(
     req.session.userId,
     String(food_name).trim(),
     Number(calories) || 0,
@@ -141,9 +149,9 @@ app.post('/api/food-logs', requireAuth, async (req, res) => {
   res.json({ id: result.lastInsertRowid });
 });
 
-app.get('/api/daily-calories', requireAuth, (req, res) => {
+app.get('/api/daily-calories', requireAuth, async (req, res) => {
   const date = req.query.date || db.todayStr();
-  res.json(db.getDailyCalorieTotal(req.session.userId, date));
+  res.json(await db.getDailyCalorieTotal(req.session.userId, date));
 });
 
 app.post('/api/food-lookup', requireAuth, async (req, res) => {
@@ -162,12 +170,12 @@ app.post('/api/food-lookup', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/api/settings', requireAuth, (req, res) => {
-  res.json(db.getSettings(req.session.userId));
+app.get('/api/settings', requireAuth, async (req, res) => {
+  res.json(await db.getSettings(req.session.userId));
 });
 
-app.put('/api/settings', requireAuth, (req, res) => {
-  db.updateSettings(req.session.userId, req.body || {});
+app.put('/api/settings', requireAuth, async (req, res) => {
+  await db.updateSettings(req.session.userId, req.body || {});
   res.json({ ok: true });
 });
 
